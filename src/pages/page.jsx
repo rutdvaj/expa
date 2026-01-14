@@ -10,17 +10,21 @@ export default function ProductListingUI() {
   // search states
   const [search, setSearch] = useState("");
   // adding category state
-  const [categories, setCategories] = useState("all");
+  const [category, setCategory] = useState("all");
+
+  // selected modal view states
+  const [productview, setProductView] = useState(null);
 
   // Fetching data through useEffect
   useEffect(() => {
     async function fetchProducts() {
       try {
         const res = await fetch("https://fakestoreapi.com/products");
+        SetLoading(true);
         if (!res.ok) {
-          throw new error("Failed to fetch products");
+          throw new Error("Failed to fetch products");
         }
-        const data = res.json();
+        const data = await res.json();
         Setproducts(data);
       } catch (error) {
         Seterror(error.message);
@@ -48,12 +52,16 @@ export default function ProductListingUI() {
   // Creating filtered products array
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.title
-      .toLowercase()
+      .toLowerCase()
       .includes(search.toLowerCase());
-    const matchesCat =
-      categories === "all" || product.categories === categories;
+
+    const matchesCat = category === "all" || product.category === category;
+
     return matchesSearch && matchesCat;
   });
+
+  // Making the category map ready
+  const categoryOptions = Array.from(new Set(products.map((p) => p.category)));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,11 +89,11 @@ export default function ProductListingUI() {
             {/* Category Dropdown */}
             <select
               className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white md:w-64"
-              value={categories}
-              onChange={(e) => setCategories(e.target.value)}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
             >
               <option value="all">All Categories</option>
-              {categories.map((category) => (
+              {categoryOptions.map((category) => (
                 <option key={category} value={category}>
                   {category.charAt(0).toUpperCase() + category.slice(1)}
                 </option>
@@ -105,6 +113,7 @@ export default function ProductListingUI() {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
+              onClick={() => setProductView(product)}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
             >
               {/* Product Image */}
@@ -141,6 +150,21 @@ export default function ProductListingUI() {
           ))}
         </div>
       </div>
+
+      {productview && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg max-w-md">
+            <h2 className="font-bold text-lg mb-2">{productview.title}</h2>
+            <p className="text-sm mb-4">{productview.description}</p>
+            <button
+              onClick={() => setProductView(null)}
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
