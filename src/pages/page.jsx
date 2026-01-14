@@ -7,6 +7,9 @@ export default function ProductListingUI() {
   const [loading, SetLoading] = useState(false);
   const [error, Seterror] = useState(null);
 
+  // search states
+  const [search, setSearch] = useState("");
+
   // Fetching data through useEffect
   useEffect(() => {
     async function fetchProducts() {
@@ -40,6 +43,11 @@ export default function ProductListingUI() {
     return <div>{error}</div>;
   }
 
+  // Creating filtered products array
+  const filteredProducts = products.filter((product) => {
+    product.title.toLowercase().includes(search.toLowerCase());
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Section */}
@@ -56,6 +64,8 @@ export default function ProductListingUI() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search products..."
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -73,7 +83,7 @@ export default function ProductListingUI() {
           </div>
 
           <p className="mt-4 text-gray-600">
-            Showing {products.length} products
+            Showing {filteredProducts.length} products
           </p>
         </div>
       </div>
@@ -81,7 +91,7 @@ export default function ProductListingUI() {
       {/* Product Grid - RESPONSIVE LAYOUT */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <div
               key={product.id}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
