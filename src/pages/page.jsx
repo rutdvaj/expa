@@ -1,60 +1,44 @@
 import { Search } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function ProductListingUI() {
-  // Mock data for UI demonstration
-  const products = [
-    {
-      id: 1,
-      title: "Sample Product 1",
-      price: 29.99,
-      category: "electronics",
-      image: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
-      rating: { rate: 4.5 },
-    },
-    {
-      id: 2,
-      title: "Sample Product 2",
-      price: 49.99,
-      category: "clothing",
-      image:
-        "https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_.jpg",
-      rating: { rate: 4.2 },
-    },
-    {
-      id: 3,
-      title: "Sample Product 3",
-      price: 19.99,
-      category: "electronics",
-      image: "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg",
-      rating: { rate: 4.8 },
-    },
-    {
-      id: 4,
-      title: "Sample Product 4",
-      price: 39.99,
-      category: "jewelery",
-      image: "https://fakestoreapi.com/img/71YAIFU48IL._AC_UL640_QL65_ML3_.jpg",
-      rating: { rate: 4.0 },
-    },
-    {
-      id: 5,
-      title: "Sample Product 5",
-      price: 59.99,
-      category: "clothing",
-      image: "https://fakestoreapi.com/img/51eg55uWmdL._AC_UX679_.jpg",
-      rating: { rate: 3.9 },
-    },
-    {
-      id: 6,
-      title: "Sample Product 6",
-      price: 24.99,
-      category: "electronics",
-      image: "https://fakestoreapi.com/img/61mtL65D4cL._AC_SX679_.jpg",
-      rating: { rate: 4.6 },
-    },
-  ];
+  // Creating state variables
+  const [products, Setproducts] = useState([]);
+  const [loading, SetLoading] = useState(false);
+  const [error, Seterror] = useState(null);
 
-  const categories = ["electronics", "clothing", "jewelery"];
+  // Fetching data through useEffect
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res = await fetch("https://fakestoreapi.com/products");
+        if (!res.ok) {
+          throw new error("Failed to fetch products");
+        }
+        const data = res.json();
+        Setproducts(data);
+      } catch (error) {
+        Seterror(error.message);
+        console.log(error);
+      } finally {
+        SetLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  // Handling loading
+  if (loading) {
+    return (
+      <div>
+        <h1>This is a placeholder skeleton that says loading</h1>
+      </div>
+    );
+  }
+  // Handling errors
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
