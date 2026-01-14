@@ -9,6 +9,8 @@ export default function ProductListingUI() {
 
   // search states
   const [search, setSearch] = useState("");
+  // adding category state
+  const [categories, setCategories] = useState("all");
 
   // Fetching data through useEffect
   useEffect(() => {
@@ -45,7 +47,12 @@ export default function ProductListingUI() {
 
   // Creating filtered products array
   const filteredProducts = products.filter((product) => {
-    product.title.toLowercase().includes(search.toLowerCase());
+    const matchesSearch = product.title
+      .toLowercase()
+      .includes(search.toLowerCase());
+    const matchesCat =
+      categories === "all" || product.categories === categories;
+    return matchesSearch && matchesCat;
   });
 
   return (
@@ -72,7 +79,11 @@ export default function ProductListingUI() {
             </div>
 
             {/* Category Dropdown */}
-            <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white md:w-64">
+            <select
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white md:w-64"
+              value={categories}
+              onChange={(e) => setCategories(e.target.value)}
+            >
               <option value="all">All Categories</option>
               {categories.map((category) => (
                 <option key={category} value={category}>
