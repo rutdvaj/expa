@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, use } from "react";
 
 export default function ProductListingUI() {
   // Creating state variables
@@ -11,9 +11,20 @@ export default function ProductListingUI() {
   const [search, setSearch] = useState("");
   // adding category state
   const [category, setCategory] = useState("all");
+  // debounce state variables
+  const [debounce, Setdebounce] = useState("");
 
   // selected modal view states
   const [productview, setProductView] = useState(null);
+
+  // Debouncing for search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      Setdebounce(search);
+    }, 1000);
+    // Cleanup function
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Fetching data through useEffect
   useEffect(() => {
@@ -36,6 +47,19 @@ export default function ProductListingUI() {
     fetchProducts();
   }, []);
 
+  // Creating filtered products array
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      let matchSearch = product.title
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      let matchCat = category === "all" || product.category === category;
+      return matchSearch && matchCat;
+    });
+  }, [products, search, category]);
+  // Making the category map ready
+  const categoryOptions = Array.from(new Set(products.map((p) => p.category)));
+
   // Handling loading
   if (loading) {
     return (
@@ -48,20 +72,6 @@ export default function ProductListingUI() {
   if (error) {
     return <div>{error}</div>;
   }
-
-  // Creating filtered products array
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-    const matchesCat = category === "all" || product.category === category;
-
-    return matchesSearch && matchesCat;
-  });
-
-  // Making the category map ready
-  const categoryOptions = Array.from(new Set(products.map((p) => p.category)));
 
   return (
     <div className="min-h-screen bg-gray-50">
